@@ -22,7 +22,7 @@ The data creation scripts are available at `preprocessing` folder, where `run_pr
 
 # Methods
 ## Out-of-KB mention discovery
-We used BLINKout with default parameters and the value of k as 50.
+We used [BLINKout](https://arxiv.org/abs/2302.07189) with default parameters.
 
 ## Concept placement
 We used an edge-Bi-encoder, which adapts the original BLINK/BLINKout model by matching a mention to an edge `<parent, child>`.

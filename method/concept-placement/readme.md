@@ -1,10 +1,10 @@
 # Edge-bi-encoder
 
-The edge-bi-encoder and evaluation with the data can be run with the script `step_all_BLINKout+_eval_bienc.sh`
+The edge-bi-encoder and evaluation with the data can be run with the script `step_all_BLINKout+_eval_bienc.sh`.
 
 # Prompting GPT-3.5
 
-A sample of the prompt is below, where the `context_left`, `mention`, and `context_right` are from the data and the `options` are from the results (top-50) of the Edge-Bi-encoder:
+A sample of the prompt is below, where the `context_left`, `mention`, and `context_right` are from the data and the `options` are from the results (top-50) of the edge-Bi-encoder:
 
 ```
 Can you identify the correct ontological edges for the given mention based on the provided context (context_left and context_right)? The ontological edge consists of a pair where the left concept represents the parent of the mention, and the right concept represents the child of the mention. If the mention is a leaf node, the right side of the edges will be NULL (SCTID_NULL). If the context is not relevant to the options, make your decision solely based on the mention itself. There may be multiple correct options. Please answer briefly using option numbers, separated by a colon. If none of the options is correct, please answer None.
