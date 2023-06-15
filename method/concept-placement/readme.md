@@ -2,7 +2,7 @@
 
 The edge-bi-encoder and evaluation with the data can be run with the script `step_all_BLINKout+_eval_bienc.sh`
 
-# Prompting GPT 3.5
+# Prompting GPT-3.5
 
 A sample of the prompt is below, where the `context_left`, `mention`, and `context_right` are from the data and the `options` are from the results (top-50) of the Edge-Bi-encoder:
 

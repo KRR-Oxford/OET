@@ -27,9 +27,9 @@ We used BLINKout with default parameters and the value of k as 50.
 ## Concept placement
 We used an edge-Bi-encoder, which adapts the original BLINK/BLINKout model by matching a mention to an edge `<parent, child>`.
 
-Then after selecting top-k edges, an optional step is to choose the correct ones for the evaluation. We tested GPT 3.5 (gpt-3.5-turbo) via OPENAI API. Details of the prompt and implementation are available in `method/concept-placement` folder.
+Then after selecting top-k edges, an optional step is to choose the correct ones for the evaluation. We tested GPT-3.5 (gpt-3.5-turbo) via OpenAI API. Details of the prompt and implementation are available in `method/concept-placement` folder.
 
 # Acknowledgement
 * The baseline implementations are based on [BLINKout paper](https://arxiv.org/abs/2302.07189) and [BLINK repository](https://github.com/facebookresearch/BLINK) under the MIT liscence. 
-* The zero-shot prompting uses [GPT-3.5](https://platform.openai.com/docs/models).
+* The zero-shot prompting uses [GPT-3.5](https://platform.openai.com/docs/models) from OpenAI API.
 * Acknowledgement to all [data and processing sources](https://github.com/KRR-Oxford/OET#data-and-processing-sources) listed above.
