@@ -18,7 +18,7 @@ The below tools and libraries are used.
 * DeepOnto https://github.com/KRR-Oxford/DeepOnto (based on OWLAPI https://owlapi.sourceforge.net/) for ontology processing and complex concept verbalisation
 
 # Data creation scripts
-The data creation scripts are available at `preprocessing` folder, where `run_preprocess_ents_and_data+new.sh` provides an overall shell script that calls the other `.py` files.
+The data creation scripts are available at `data-construction` folder, where `run_preprocess_ents_and_data+new.sh` provides an overall shell script that calls the other `.py` files.
 
 # Methods
 ## Out-of-KB mention discovery
@@ -27,7 +27,7 @@ We used [BLINKout](https://arxiv.org/abs/2302.07189) with default parameters.
 ## Concept placement
 We used an edge-Bi-encoder, which adapts the original BLINK/BLINKout model by matching a mention to an edge `<parent, child>`.
 
-Then after selecting top-k edges, an optional step is to choose the correct ones for the evaluation. We tested GPT-3.5 (gpt-3.5-turbo) via OpenAI API. Details of the prompt and implementation are available in `method/concept-placement` folder.
+Then after selecting top-k edges, an optional step is to choose the correct ones for the evaluation. We tested GPT-3.5 (gpt-3.5-turbo) via OpenAI API. Details of the prompt and implementation are available in `baseline-methods/concept-placement` folder.
 
 # Acknowledgement
 * The baseline implementations are based on [BLINKout paper](https://arxiv.org/abs/2302.07189) and [BLINK repository](https://github.com/facebookresearch/BLINK) under the MIT liscence. 
