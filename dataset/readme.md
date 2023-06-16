@@ -9,6 +9,7 @@ The dataset consists of two parts:
 
 Data folder structure:
 
+'''
 └───MM-S14-Disease
 |   |   mention-level # Mention-level data
 |   |   |   syn_attr # synonym as attributes 
@@ -49,6 +50,7 @@ Data folder structure:
 |   |   |   SNOMEDCT-US-20140901-CPP-edges.jsonl # edge catalogue, list of jsons, each is an edge.
 |   |   |   SNOMEDCT-US-20140901-CPP-final.owl # .owl file of the older KB
 |   |   |   SNOMEDCT-US-20170301-CPP-final.owl # .owl file of the newer KB
+'''
 
 JSON keys for mention-level data:
     
