@@ -2,7 +2,7 @@
 
 import openai
 # TEST
-openai.api_key = "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"
+openai.api_key = [YOUR_OPENAPI_KEY]
 import os
 
 # prompt = """
