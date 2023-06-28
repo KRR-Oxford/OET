@@ -269,19 +269,19 @@ def main(params):
         #list_2d_mention_list_edge_strs.append(list_edge_strs)
         dict_ctx_mention_to_list_2d_edge_strs = add_dict_list(
                                                 dict=dict_ctx_mention_to_list_2d_edge_strs,
-                                                id=(mention, context_left, context_right),
+                                                id=(mention, context_left, context_right,label_concept_ori),
                                                 ele=list_edge_strs,
-                                                )
+                                                ) # add label_concept_ori to the key tuple so as to make a difference of the same mention machted to several SNOMED CT IDs.
         if child_concept == "SCTID_NULL":
             dict_ctx_mention_to_list_2d_edge_strs_leaf = add_dict_list(
                                                 dict=dict_ctx_mention_to_list_2d_edge_strs_leaf,
-                                                id=(mention, context_left, context_right),
+                                                id=(mention, context_left, context_right,label_concept_ori),
                                                 ele=list_edge_strs,
                                                 )
         else:   
             dict_ctx_mention_to_list_2d_edge_strs_non_leaf = add_dict_list(
                                                 dict=dict_ctx_mention_to_list_2d_edge_strs_non_leaf,
-                                                id=(mention, context_left, context_right),
+                                                id=(mention, context_left, context_right,label_concept_ori),
                                                 ele=list_edge_strs,
                                                 )
 
@@ -330,7 +330,7 @@ def main(params):
         print('prompts in .csv saved to %s' % output_fn_prompts_csv)
 
         # csv form - by edges
-        print('len(dict_prompt_strs_by_edge):',len(dict_prompt_strs_by_edge))
+        print('len(dict_prompt_strs_by_edge):',len(dict_prompt_strs_by_edge)) # there can be fewer prompts than mentions (e.g., Disease 604 vs. 605, and CPP 999 vs 1000, as there is a same mention counted twice due to matching to two different SNOMED CT IDs)
         output_fn_prompts_by_edges_csv = output_fn_prompts_by_edges[:len(output_fn_prompts_by_edges)-len('.txt')] + '.csv'
         prompt_edge_list = list(dict_prompt_strs_by_edge.keys())
         ctx_id_list = ['|'.join(tuple_type_answer[0]) for tuple_type_answer in list(dict_prompt_strs_by_edge.values())] # make it a comma-separated string
