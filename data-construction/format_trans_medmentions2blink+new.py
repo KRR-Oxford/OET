@@ -1,7 +1,9 @@
 # transform the format from medmentions for automated NIL generation for insertion of SNOMED-CT
 # input both older and newer versions of SNOMED-CT
-# TODO: 
+
+# To note: 
 # 1. order of annotations not considered - this is OK when reading properties separately
+# 2. mention to a UMLS CUI to måultiple SNOMED CT ID - so far we treat this as different mentions, each to a different SNOMED CT ID
 
 from pubtator_loader import PubTatorCorpusReader
 from tqdm import tqdm

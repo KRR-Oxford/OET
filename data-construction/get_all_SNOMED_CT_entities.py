@@ -59,6 +59,12 @@ def form_str_ent_row_BLINK(CUI_def,CUI,default_name,list_synonyms,parent_CUIs_st
             dict_entity_row['synonyms'] = synonyms_str          
     return json.dumps(dict_entity_row)
 
+def form_str_ent_row_Sieve(CUI,default_name,list_synonyms,add_synonyms=True):
+    if add_synonyms:
+        synonyms_str = '|'.join(list_synonyms)
+    entity_row_str = CUI + '||' + default_name + (('|' + synonyms_str) if add_synonyms else '')
+    return entity_row_str
+
 parser = argparse.ArgumentParser(description="get the list file of SNOMED-CT entities")
 parser.add_argument('-o','--output_data_folder_path', type=str,
                     help="output data folder path", default='../ontologies')
@@ -119,7 +125,9 @@ for iri in tqdm(dict_SCTID_onto.keys()):
     if output_format == 'BLINK':
         entity_row_str = form_str_ent_row_BLINK(concept_def,SCTID,concept_tit,list_synonyms,parents_str,parents_tit_str,children_str,children_tit_str,pc_paths_str,add_synonyms=add_synonyms,synonym_concat_w_title=synonym_concat_w_title,
         synonym_as_entity=synonym_as_entity,add_direct_hyps=add_direct_hyps)
-        list_entity_json_str.append(entity_row_str)
+    elif output_format == 'Sieve':
+        entity_row_str = form_str_ent_row_Sieve(SCTID,concept_tit,list_synonyms,add_synonyms=add_synonyms)
+    list_entity_json_str.append(entity_row_str)
 
 # TODO: get the parents / children of complex concepts - so far output empty
 # loop over all complex concepts 
@@ -140,8 +148,10 @@ if concept_type != 'atomic':
         #children_str, parents_str, pc_paths_str, children_tit_str, parents_tit_str = get_entity_graph_info(onto_sno,complex_owl_class_expression.asOWLClass(),dict_SCTID_onto,onto_verbaliser=onto_sno_verbaliser,concept_type=concept_type)
         if output_format == 'BLINK':
             complex_entity_row_str = form_str_ent_row_BLINK(complex_concept_def,complex_concept_id,complex_concept_tit,list_complex_synonyms,parents_str,parents_tit_str,children_str,children_tit_str,pc_paths_str,add_synonyms=add_synonyms,synonym_concat_w_title=synonym_concat_w_title,
-            synonym_as_entity=synonym_as_entity,add_direct_hyps=add_direct_hyps)
-            list_entity_json_str.append(complex_entity_row_str)
+            synonym_as_entity=synonym_as_entity,add_direct_hyps=add_direct_hyps)            
+        elif output_format == 'Sieve':
+            complex_entity_row_str = form_str_ent_row_Sieve(complex_concept_id,complex_concept_tit,list_synonyms,add_synonyms=add_synonyms)
+        list_entity_json_str.append(complex_entity_row_str)
 
 entity_json_str = '\n'.join(list_entity_json_str)
 

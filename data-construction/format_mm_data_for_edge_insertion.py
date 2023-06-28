@@ -2,8 +2,8 @@
 # for each mention row, display the (i) label concept parent id/name and (ii) label concept children id/name,
 # and also the edge row id in the edge catalogue (e.g., ../ontologies/SNOMEDCT-US-20140901-Disease-edges.jsonl)
 
-# input: (i) the output data files of format_trans_medmentions2blink+new.py
-#        (ii) the output edge catalogue file of get_all_SNOMED_CT_edges.py
+# input:  (i) the output data files of format_trans_medmentions2blink+new.py
+#         (ii) the output edge catalogue file of get_all_SNOMED_CT_edges.py
 # output: (i) mention-edge-pair data: the re-formatted data files for insertion into edges (full (in-KB+NIL), NIL, final).
 
                 # the "final" version contains: 
@@ -12,14 +12,21 @@
                     # in-KB insertion test set
                     # unsupervised NIL insertion testing set
 
-        # (ii) mention-level data: also, adapt the mention-level data for edge insertion. 
+        # (ii) mention-level data: 
+            # a) "-unsup", unsupervised,
+                # adapt the mention-level data for edge insertion. 
                 # by moving the NIL mentions in train and valid, to test.
-             # This is equiv to the content of the mention-edge-pair-data
+                # This is equiv to the content of the mention-edge-pair-data
+            # b) "-filt", filtered,
+                # given that we only selected the one-hop/degree and two-hop edges, we also filter out the mentions in the mention-level data.
+            # c) "-filt" for "full" (i.e. synonym as entity) setting (the above are "attr", synonym as attr, setting ).
+            # d) "-filt" for Sieve format (from "attr") - by setting --update_sieve_data
 
 from tqdm import tqdm
 import json
 import os,sys
 import argparse
+import math
 
 #output str content to a file
 #input: filename and the content (str)
@@ -66,6 +73,7 @@ parser.add_argument('--snomed_subset', type=str,
 parser.add_argument('--concept_type', type=str,
                     help=" concept_type: \"atomic\", \"complex\", \"all\" (or any other strings)", default='atomic')
 parser.add_argument("--allow_complex_edge",action="store_true",help="Whether to allow one or two sides of the edge to have complex concepts - for cases of \"all\" and \"complex\"")
+parser.add_argument("--update_sieve_data",action="store_true",help="Whether to update the Sieve format data")
 args = parser.parse_args()
 
 #edge_catalogue_fn = '../ontologies/SNOMEDCT-US-20140901-Disease-edges.jsonl'
@@ -74,23 +82,37 @@ edge_catalogue_fn = '../ontologies/SNOMEDCT-US-%s-%s-edges%s.jsonl' % (args.onto
 dict_edge_tuple_ind,dict_edge_tuple_title_tuple = get_dict_of_parent_child_edge_in_catalogue(edge_catalogue_fn)
 
 dataset_folder_path = "../data/MedMentions-preprocessed+"
+dataset_folder_path_sieve = dataset_folder_path + "sieve" 
+
+context_length = 256 # context length (ctxt_l + mention + ctxt_r) used to form context for the dataset (this is need to match mentions in .jsonl to Sieve format)
+
 #dataset_name = "st21pv_syn_attr"
 dataset_name = "%s/st21pv_syn_attr%s%s" % (args.snomed_subset,('-' + args.concept_type) if args.concept_type != 'atomic' else '','-complexEdge' if args.allow_complex_edge else '')
+dataset_name_syn = "%s/st21pv_syn_full%s%s" % (args.snomed_subset,('-' + args.concept_type) if args.concept_type != 'atomic' else '','-complexEdge' if args.allow_complex_edge else '')
+
 output_data_folder_path = '%s/%s-edges' % (dataset_folder_path,dataset_name)
 output_data_folder_path_NIL = '%s/%s-edges-NIL' % (dataset_folder_path,dataset_name)
 output_data_folder_path_final = '%s/%s-edges-final' % (dataset_folder_path,dataset_name)
 # mention-level data
-output_data_folder_path_mention_lvl = "%s/%s-unsup" % (dataset_folder_path,dataset_name) # unsupervised for NIL mention insertion
+output_data_folder_path_mention_lvl_unsup = "%s/%s-unsup" % (dataset_folder_path,dataset_name) # unsupervised for NIL mention insertion
+output_data_folder_path_mention_lvl_filt = '%s/%s-filt' % (dataset_folder_path,dataset_name)
+output_data_folder_path_mention_lvl_syn_filt = '%s/%s-filt' % (dataset_folder_path,dataset_name_syn)
+output_data_folder_path_mention_lvl_filt_sieve = '%s/%s-filt' % (dataset_folder_path_sieve,dataset_name) # data for sieve
 
 dict_concept_NIL = {}
 dict_data_split_mark_to_list_json_row_in_KB = {} # to a tuple of mention-edge-level-rows and mention-level-rows
 dict_data_split_mark_to_list_json_row_NIL = {} # to a tuple of mention-edge-level-rows and mention-level-rows
+dict_data_split_mark_to_list_json_row_filt = {} # to the mention-level-rows (syn-attr)
+dict_data_split_mark_to_list_json_row_syn_filt = {} # to the mention-level-rows (syn-full)
 for data_split_mark in ["train", "valid", "test"]:
+    mention_filtered_out_by_edge_path = {} # dict of mention (w/ contexts concat: ctxt_l + mention + ctxt_r) be filtered by edge path
+
     list_mention_for_insertion_json_row = []
     list_mention_for_insertion_json_row_in_KB = []
     list_mention_for_insertion_json_row_NIL = []
     list_mention_json_row_in_KB =[]
     list_mention_json_row_NIL =[]
+    list_mention_json_row_filt = []
     dict_concept_NIL_data_split = {}
     with open("%s/%s/%s.jsonl" % (dataset_folder_path,dataset_name,data_split_mark),encoding='utf-8-sig') as f_content:
         doc = f_content.readlines()
@@ -98,6 +120,7 @@ for data_split_mark in ["train", "valid", "test"]:
     for ind, mention_info_json in enumerate(tqdm(doc)):
         mention_info = json.loads(mention_info_json)  
 
+        has_edge_in_catalogue = False
         dict_mention_for_insertion_row={}    
         dict_mention_for_insertion_row["context_left"] = mention_info["context_left"]
         dict_mention_for_insertion_row["mention"] = mention_info["mention"]
@@ -116,8 +139,14 @@ for data_split_mark in ["train", "valid", "test"]:
                 dict_mention_for_insertion_row['parent_concept'] = pc_tuple[0]
                 dict_mention_for_insertion_row['child_concept'] = pc_tuple[1]
                 if not pc_tuple in dict_edge_tuple_title_tuple:
-                    print(pc_tuple, 'not in dict_edge_tuple_title_tuple')
+                    # here will filter out the mentions with edges which are not in the edge catalogue (one-hop, including leaf-to-NULL edges, and two-hop edges)
+                    print(pc_tuple, 'not in dict_edge_tuple_title_tuple')                    
                     continue
+                    # or we can keep the like this below to include all k-hop edges
+                    #dict_edge_tuple_title_tuple[pc_tuple] = ("unknown","unknown")
+                    #dict_edge_tuple_ind[pc_tuple] = -1
+
+                has_edge_in_catalogue = True # True if for the mention there is at least one edge in the catalogue, otherwise False
                 pc_title_tuple = dict_edge_tuple_title_tuple[pc_tuple]
                 dict_mention_for_insertion_row['parent'] = pc_title_tuple[0]
                 dict_mention_for_insertion_row['child'] = pc_title_tuple[1]
@@ -146,23 +175,119 @@ for data_split_mark in ["train", "valid", "test"]:
         else:
             print('row', ind, 'no parent-child paths.')
 
-        if mention_info["label_title"] == "NIL":
-            list_mention_json_row_NIL.append(mention_info_json.strip())
+        if has_edge_in_catalogue: # only record the mentions which have an edge in the catalogue
+            if mention_info["label_title"] == "NIL":
+                list_mention_json_row_NIL.append(mention_info_json.strip())
+            else:
+                list_mention_json_row_in_KB.append(mention_info_json.strip())            
+            list_mention_json_row_filt.append(mention_info_json.strip())
         else:
-            list_mention_json_row_in_KB.append(mention_info_json.strip())
+            # record the ctxt mention tuples to be filtered out
+            ctxt_men_id_tuple = (mention_info["mention"], mention_info["context_left"], mention_info["context_right"], mention_info["label_concept"])
+            #print('ctxt_men_id_tuple:',ctxt_men_id_tuple)
+            mention_filtered_out_by_edge_path[ctxt_men_id_tuple] = 1
             
+    # for syn full setting - also loop over all the mentions
+    list_mention_json_row_syn_filt = []
+    with open("%s/%s/%s.jsonl" % (dataset_folder_path,dataset_name_syn,data_split_mark),encoding='utf-8-sig') as f_content:
+        doc = f_content.readlines()
+    for ind, mention_info_json in enumerate(tqdm(doc)):
+        mention_info = json.loads(mention_info_json)  
+        has_edge_in_catalogue = False
+        pc_paths_str = mention_info["parents-children_concept"]
+        if pc_paths_str != '':
+            list_pc_paths = pc_paths_str.split('|')
+            for pc_path in list_pc_paths:
+                pc_tuple = tuple(pc_path.split('-'))
+                if not pc_tuple in dict_edge_tuple_title_tuple:
+                    # here it filters out the mentions with edges which are not in the edge catalogue (one-hop, including leaf-to-NULL edges, and two-hop edges)
+                    print(pc_tuple, 'not in dict_edge_tuple_title_tuple')
+                    continue
+                has_edge_in_catalogue = True    
+        if has_edge_in_catalogue: # only record the mentions which have an edge in the catalogue
+            list_mention_json_row_syn_filt.append(mention_info_json.strip())
+
+    # for sieve format ("filt" from "attr")
+    print("mentions to be filtered for sieve:",len(mention_filtered_out_by_edge_path))
+    if args.update_sieve_data:
+        # get data_split_mark for sieve data 
+        if data_split_mark == "train":
+            data_split_mark_sieve = "trng" 
+        elif data_split_mark == "valid": 
+            data_split_mark_sieve = "dev"
+        else: 
+            data_split_mark_sieve = data_split_mark
+        
+        # create data split folders
+        if not os.path.exists(os.path.join(output_data_folder_path_mention_lvl_filt_sieve,data_split_mark_sieve)):
+            os.makedirs(os.path.join(output_data_folder_path_mention_lvl_filt_sieve,data_split_mark_sieve))        
+
+        # loop over the mentions per each doc    
+        sieve_data_split_path = "%s/%s/%s" % (dataset_folder_path_sieve,dataset_name,data_split_mark_sieve)
+        #list_ann_fns = [filename for filename in os.listdir(sieve_data_split_path) if filename.endswith(".concept")]
+        list_doc_fns = [filename for filename in os.listdir(sieve_data_split_path) if filename.endswith(".txt")]
+        
+        for ind_ann_doc_fn, doc_filename in enumerate(tqdm(list_doc_fns)):
+            ann_filename = doc_filename[:len(doc_filename)-len(".txt")] + ".concept"
+            if os.path.exists(os.path.join(sieve_data_split_path,ann_filename)):
+                with open(os.path.join(sieve_data_split_path,ann_filename),encoding='utf-8') as f_content:
+                    label_doc = f_content.read()
+                    list_label_mentions = label_doc.split('\n')
+            else:
+                list_label_mentions = []
+            #doc_filename = ann_filename[:len(ann_filename)-len(".concept")] + ".txt"
+            with open(os.path.join(sieve_data_split_path,doc_filename),encoding='utf-8-sig') as f_content:
+                doc = f_content.read()
+                doc = doc.strip()
+            label_mention_filt_list = []
+            for label_mention in list_label_mentions:
+                label_men_info = label_mention.split("||")
+                context_pos = label_men_info[1]
+                context_pos_tuple = label_men_info[1].split("|")
+                snomed_concept = label_men_info[4]
+                mention_pos_start = int(context_pos_tuple[0])
+                mention_pos_end = int(context_pos_tuple[1])
+                mention = doc[int(context_pos_tuple[0]):int(context_pos_tuple[1])]
+                assert mention == label_men_info[3]
+                doc_ctx_left = doc[:int(mention_pos_start)]
+                doc_ctx_left_tokens = doc_ctx_left.split(' ')
+                ctx_len_half = math.floor(context_length/2) #math.floor((context_length-1)/2)
+                context_left = ' '.join(doc_ctx_left_tokens[-ctx_len_half:])
+                doc_ctx_right = doc[int(mention_pos_end):]
+                doc_ctx_right_tokens = doc_ctx_right.split(' ')
+                if snomed_concept == "CUI-less":
+                    snomed_concept = "SCTID-less"
+                context_right = ' '.join(doc_ctx_right_tokens[0:ctx_len_half])    
+                ctxt_men_id_tuple = (mention, context_left, context_right, snomed_concept)
+                #print("ctxt_men_id_tuple:",ctxt_men_id_tuple)
+                if ctxt_men_id_tuple in mention_filtered_out_by_edge_path:
+                    print('mention filtered for sieve:', ctxt_men_id_tuple)
+                    continue
+                label_mention_filt_list.append(label_mention)
+            # output doc file and updated ann file
+            output_to_file("%s/%s/%s" % (output_data_folder_path_mention_lvl_filt_sieve,data_split_mark_sieve,doc_filename), doc)
+            if len(list_label_mentions) > 0:
+                output_to_file("%s/%s/%s" % (output_data_folder_path_mention_lvl_filt_sieve,data_split_mark_sieve,ann_filename), '\n'.join(label_mention_filt_list))
+
     # save the dict of data split mark to list of jsons
     dict_data_split_mark_to_list_json_row_in_KB[data_split_mark] = (list_mention_for_insertion_json_row_in_KB,list_mention_json_row_in_KB)
     dict_data_split_mark_to_list_json_row_NIL[data_split_mark] = (list_mention_for_insertion_json_row_NIL,list_mention_json_row_NIL)
+    dict_data_split_mark_to_list_json_row_filt[data_split_mark] = list_mention_json_row_filt
+    dict_data_split_mark_to_list_json_row_syn_filt[data_split_mark] = list_mention_json_row_syn_filt
+    
     # create the output folder if not existed
     if not os.path.exists(output_data_folder_path):
         os.makedirs(output_data_folder_path)
     if not os.path.exists(output_data_folder_path_NIL):
         os.makedirs(output_data_folder_path_NIL)
-    if not os.path.exists(output_data_folder_path_mention_lvl):
-        os.makedirs(output_data_folder_path_mention_lvl)
-    # output the full, original training/testing set            
-    output_to_file('%s/%s.jsonl' % (output_data_folder_path, data_split_mark),'\n'.join(list_mention_for_insertion_json_row))
+    if not os.path.exists(output_data_folder_path_mention_lvl_unsup):
+        os.makedirs(output_data_folder_path_mention_lvl_unsup)
+    if not os.path.exists(output_data_folder_path_mention_lvl_filt):
+        os.makedirs(output_data_folder_path_mention_lvl_filt) 
+    if not os.path.exists(output_data_folder_path_mention_lvl_syn_filt):
+        os.makedirs(output_data_folder_path_mention_lvl_syn_filt)            
+    # output the in-KB+NIL original training/testing set            
+    output_to_file('%s/%s.jsonl' % (output_data_folder_path, data_split_mark),'\n'.join(list_mention_for_insertion_json_row))    
     # for NIL only dataset
     output_to_file('%s/%s.jsonl' % (output_data_folder_path_NIL, data_split_mark),'\n'.join(list_mention_for_insertion_json_row_NIL))
 
@@ -189,24 +314,32 @@ if not os.path.exists(output_data_folder_path_final):
     os.makedirs(output_data_folder_path_final)       
 
 for data_split_mark in ["train", "valid", "test"]:
+    # create filt mention data (by edge catalogue)
+    list_mention_json_row_ = dict_data_split_mark_to_list_json_row_filt[data_split_mark]
+    output_to_file('%s/%s.jsonl' % (output_data_folder_path_mention_lvl_filt, data_split_mark),'\n'.join(list_mention_json_row_))
+
+    list_mention_syn_json_row_ = dict_data_split_mark_to_list_json_row_syn_filt[data_split_mark]
+    output_to_file('%s/%s.jsonl' % (output_data_folder_path_mention_lvl_syn_filt, data_split_mark),'\n'.join(list_mention_syn_json_row_))
+
+    # create mention-edge-pair-level and unsup mention-level data
     if data_split_mark == 'train' or data_split_mark == 'valid':
         # 'train' and 'valid' set: in-KB
         list_mention_for_insertion_json_row_in_KB_, list_mention_json_row_in_KB_ = dict_data_split_mark_to_list_json_row_in_KB[data_split_mark]
         output_to_file('%s/%s.jsonl' % (output_data_folder_path_final, data_split_mark),'\n'.join(list_mention_for_insertion_json_row_in_KB_))
-        output_to_file('%s/%s.jsonl' % (output_data_folder_path_mention_lvl, data_split_mark),'\n'.join(list_mention_json_row_in_KB_))
+        output_to_file('%s/%s.jsonl' % (output_data_folder_path_mention_lvl_unsup, data_split_mark),'\n'.join(list_mention_json_row_in_KB_))
     elif data_split_mark == 'test':
         # 'test-in-KB'
         list_mention_for_insertion_json_row_in_KB_, list_mention_json_row_in_KB_ = dict_data_split_mark_to_list_json_row_in_KB[data_split_mark]
         output_to_file('%s/%s.jsonl' % (output_data_folder_path_final, data_split_mark + '-in-KB'),'\n'.join(list_mention_for_insertion_json_row_in_KB_)) #mention-edge-lvl
-        output_to_file('%s/%s.jsonl' % (output_data_folder_path_mention_lvl, data_split_mark + '-in-KB'),'\n'.join(list_mention_json_row_in_KB_)) #mention-lvl
+        output_to_file('%s/%s.jsonl' % (output_data_folder_path_mention_lvl_unsup, data_split_mark + '-in-KB'),'\n'.join(list_mention_json_row_in_KB_)) #mention-lvl
         # 'test-NIL'
         list_mention_for_insertion_json_row_NIL_ = dict_data_split_mark_to_list_json_row_NIL['train'][0] + dict_data_split_mark_to_list_json_row_NIL['valid'][0] + dict_data_split_mark_to_list_json_row_NIL['test'][0]
         output_to_file('%s/%s.jsonl' % (output_data_folder_path_final, data_split_mark + '-NIL'),'\n'.join(list_mention_for_insertion_json_row_NIL_))  #mention-edge-lvl
 
         list_mention_json_row_NIL_ = dict_data_split_mark_to_list_json_row_NIL['train'][1] + dict_data_split_mark_to_list_json_row_NIL['valid'][1] + dict_data_split_mark_to_list_json_row_NIL['test'][1]
-        output_to_file('%s/%s.jsonl' % (output_data_folder_path_mention_lvl, data_split_mark + '-NIL'),'\n'.join(list_mention_json_row_NIL_))  #mention-lvl
+        output_to_file('%s/%s.jsonl' % (output_data_folder_path_mention_lvl_unsup, data_split_mark + '-NIL'),'\n'.join(list_mention_json_row_NIL_))  #mention-lvl
         # 'test-full': in-KB + NIL (mention-level only)
-        output_to_file('%s/%s.jsonl' % (output_data_folder_path_mention_lvl, data_split_mark),'\n'.join(list_mention_json_row_in_KB_ + list_mention_json_row_NIL_)) #mention-lvl
+        output_to_file('%s/%s.jsonl' % (output_data_folder_path_mention_lvl_unsup, data_split_mark),'\n'.join(list_mention_json_row_in_KB_ + list_mention_json_row_NIL_)) #mention-lvl
         
 # display the actual snomed-ct ids of the NIL mentions
 print('dict_concept_NIL all data splits')

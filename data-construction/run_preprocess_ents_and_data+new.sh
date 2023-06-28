@@ -15,6 +15,10 @@ python get_all_SNOMED_CT_entities.py --add_synonyms --add_direct_hyps --onto_ver
 python get_all_SNOMED_CT_entities.py --add_synonyms --add_direct_hyps --concept_type all --onto_ver 20140901-CPP
 python get_all_SNOMED_CT_entities.py --add_synonyms --synonym_as_entity --add_direct_hyps --concept_type all --onto_ver 20140901-CPP # with synonym as entity
 
+# for sieve
+python get_all_SNOMED_CT_entities.py -f Sieve --add_synonyms --add_direct_hyps --concept_type all --onto_ver 20140901-Disease 
+python get_all_SNOMED_CT_entities.py -f Sieve --add_synonyms --add_direct_hyps --concept_type all --onto_ver 20140901-CPP 
+
 # for newer ontology 20170301 (only for statistics)
 # python get_all_SNOMED_CT_entities.py --add_synonyms --add_direct_hyps --onto_ver 20170301-Disease
 # python get_all_SNOMED_CT_entities.py --add_synonyms --add_direct_hyps --concept_type all --onto_ver 20170301-Disease
@@ -53,18 +57,24 @@ python format_trans_medmentions2blink+new.py --snomed_subset CPP --concept_type 
 
 python format_trans_medmentions2blink+new.py --snomed_subset CPP --add_synonyms_as_ents --concept_type all --allow_complex_edge > log-mm-insertion-data-2014vs2017-CPP-full-syn-attr-all-compEdge-compFilt.txt
 
+#sieve-based data creation
+python format_trans_medmentions2sieve+new.py --concept_type all --allow_complex_edge
+python format_trans_medmentions2sieve+new.py --snomed_subset CPP --concept_type all --allow_complex_edge
+
 #step4 get edge-level data from mention-level data
 # edge-level data: Disease
 python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset Disease --concept_type all --allow_complex_edge > log_mm_data_for_edge_insertion-2014vs2017_Disease-all.txt # all
 #python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset Disease --concept_type atomic  > log_mm_data_for_edge_insertion-2014vs2017_Disease.txt # atomic
-
+# for sieve data update
+python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset Disease --concept_type all --allow_complex_edge --update_sieve_data > log_mm_data_for_edge_insertion-2014vs2017_Disease-all-sieve.txt
 # get complex edge test set
 # grep -i "\[EX" ../data/MedMentions-preprocessed+/Disease/st21pv_syn_attr-all-complexEdge-edges-final/test-NIL.jsonl > ../data/MedMentions-preprocessed+/Disease/st21pv_syn_attr-all-complexEdge-edges-final/test-NIL-complex.jsonl
 
 # edge-level data: CPP
 python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset CPP --concept_type all --allow_complex_edge > log_mm_data_for_edge_insertion-2014vs2017_CPP-all.txt # all
 #python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset CPP --concept_type atomic > log_mm_data_for_edge_insertion-2014vs2017_CPP.txt # atomic
-
+# for sieve data update
+python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset CPP --concept_type all --allow_complex_edge --update_sieve_data > log_mm_data_for_edge_insertion-2014vs2017_CPP-all-sieve.txt
 # get complex edge test set
 # Disease NIL
 grep -i "\[EX" ../data/MedMentions-preprocessed+/Disease/st21pv_syn_attr-all-complexEdge-edges-final/test-NIL.jsonl > ../data/MedMentions-preprocessed+/Disease/st21pv_syn_attr-all-complexEdge-edges-final/test-NIL-complex.jsonl
@@ -85,4 +95,4 @@ grep -i "\[EX" ../data/MedMentions-preprocessed+/CPP/st21pv_syn_attr-all-complex
 
 # get statistics 
 # counting the number of NIL mentions in the Disease test set(an example below)
-grep -o "\"NIL\"" ../data/MedMentions-preprocessed+/Disease/st21pv_syn_attr-all-complexEdge/test.jsonl | wc -l
+grep -o "\"NIL\"" ../data/MedMentions-preprocessed+/Disease/st21pv_syn_attr-all-complexEdge-filt/test.jsonl | wc -l
