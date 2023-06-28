@@ -1,10 +1,10 @@
 # OET
 Ontology Enrichment from Texts (OET): A Biomedical Dataset for Concept Discovery and Placement
 
-The repository provides scripts for data creation, with guideline to implement baseline methods for out-of-KB mention discovery and concept placement.
+The repository provides scripts for data creation, with guideline to implement baseline methods for out-of-KB mention discovery and concept placement. The study is described in this [work](https://arxiv.org/abs/2306.14704) (link to arXiv).
 
 # Dataset
-The dataset is available at [Zenodo](https://zenodo.org/record/8043690) and its JSON keys are described in the `dataset` folder. 
+The dataset is available at [Zenodo](https://zenodo.org/record/8084860) and its JSON keys are described in the `dataset` folder. 
 
 # Data and processing sources
 Before data creation, the below sources need to be downloaded.
