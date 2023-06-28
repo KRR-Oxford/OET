@@ -66,7 +66,7 @@ python format_trans_medmentions2sieve+new.py --snomed_subset CPP --concept_type 
 python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset Disease --concept_type all --allow_complex_edge > log_mm_data_for_edge_insertion-2014vs2017_Disease-all.txt # all
 #python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset Disease --concept_type atomic  > log_mm_data_for_edge_insertion-2014vs2017_Disease.txt # atomic
 # for sieve data update
-python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset Disease --concept_type all --allow_complex_edge --update_sieve_data > log_mm_data_for_edge_insertion-2014vs2017_Disease-all-sieve.txt
+#python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset Disease --concept_type all --allow_complex_edge --update_sieve_data > log_mm_data_for_edge_insertion-2014vs2017_Disease-all-sieve.txt
 # get complex edge test set
 # grep -i "\[EX" ../data/MedMentions-preprocessed+/Disease/st21pv_syn_attr-all-complexEdge-edges-final/test-NIL.jsonl > ../data/MedMentions-preprocessed+/Disease/st21pv_syn_attr-all-complexEdge-edges-final/test-NIL-complex.jsonl
 
@@ -74,7 +74,7 @@ python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset 
 python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset CPP --concept_type all --allow_complex_edge > log_mm_data_for_edge_insertion-2014vs2017_CPP-all.txt # all
 #python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset CPP --concept_type atomic > log_mm_data_for_edge_insertion-2014vs2017_CPP.txt # atomic
 # for sieve data update
-python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset CPP --concept_type all --allow_complex_edge --update_sieve_data > log_mm_data_for_edge_insertion-2014vs2017_CPP-all-sieve.txt
+#python format_mm_data_for_edge_insertion.py --onto_ver 20140901 --snomed_subset CPP --concept_type all --allow_complex_edge --update_sieve_data > log_mm_data_for_edge_insertion-2014vs2017_CPP-all-sieve.txt
 # get complex edge test set
 # Disease NIL
 grep -i "\[EX" ../data/MedMentions-preprocessed+/Disease/st21pv_syn_attr-all-complexEdge-edges-final/test-NIL.jsonl > ../data/MedMentions-preprocessed+/Disease/st21pv_syn_attr-all-complexEdge-edges-final/test-NIL-complex.jsonl
