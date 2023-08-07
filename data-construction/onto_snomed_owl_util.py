@@ -212,10 +212,11 @@ def get_in_KB_direct_children(onto,concept_iri,dict_SCTID_onto,dict_SCTID_onto_f
         if concept_iri in dict_SCTID_onto:
             # atomic concept
             concept_iri_obj = dict_SCTID_onto[concept_iri]
+            set_children = onto.get_asserted_children(concept_iri_obj)
         else:
             # complex concept 
             concept_iri_obj = concept_iri
-        set_children = onto.get_asserted_children(concept_iri_obj)
+            set_children = {} # so far, setting a complex concept's child as an empty set 
         if concept_type == "atomic":
             # only atomic        
             set_children = {child for child in set_children if OntologyReasoner.has_iri(child)}
@@ -275,10 +276,13 @@ def get_in_KB_direct_parents(onto,concept_iri,dict_SCTID_onto,dict_SCTID_onto_fi
         if concept_iri in dict_SCTID_onto:
             # atomic concept
             concept_iri_obj = dict_SCTID_onto[concept_iri]
+            set_parents = onto.get_asserted_parents(concept_iri_obj)
+        
         else:
             # complex concept 
             concept_iri_obj = concept_iri
-        set_parents = onto.get_asserted_parents(concept_iri_obj)
+            set_parents = {} # so far, setting a complex concept's parent as an empty set 
+        #print("concept_iri_obj:",concept_iri_obj)
         if concept_type == "atomic":
             # only atomic        
             set_parents = {parent for parent in set_parents if OntologyReasoner.has_iri(parent)}
@@ -311,6 +315,7 @@ def get_in_KB_direct_parents(onto,concept_iri,dict_SCTID_onto,dict_SCTID_onto_fi
                     print("list_iris_in_parent:",list_iris_in_parent)
                     for iri_in_parent in list_iris_in_parent:
                         if not iri_in_parent in dict_SCTID_onto_filtering:
+                            # only keeping complex concepts which has all decomposed atomic concepts in the old ontology - but this may prevent the new combinations of atomic concepts? e.g. [EX.](<609096000> [EX.](<42752001> <94602001>))-SCTID_NULL in Disease TODO
                             list_parents_new.remove(parent)
                             print('list_parents_new:',list_parents_new, 'parent', parent, 'removed')
                             break  

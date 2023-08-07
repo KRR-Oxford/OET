@@ -16,9 +16,10 @@
             # a) "-unsup", unsupervised,
                 # adapt the mention-level data for edge insertion. 
                 # by moving the NIL mentions in train and valid, to test.
-                # This is equiv to the content of the mention-edge-pair-data
+                # This is equiv to the content of the mention-edge-pair-data                
             # b) "-filt", filtered,
-                # given that we only selected the one-hop/degree and two-hop edges, we also filter out the mentions in the mention-level data.
+                # given that we only selected the one-hop/degree and two-hop edges (regarding any paths in the ontology), we also filter out the mentions in the mention-level data.
+                # we also filter out the edges, a few, which are not in the edge catalogue.
             # c) "-filt" for "full" (i.e. synonym as entity) setting (the above are "attr", synonym as attr, setting ).
             # d) "-filt" for Sieve format (from "attr") - by setting --update_sieve_data
 
@@ -134,13 +135,16 @@ for data_split_mark in ["train", "valid", "test"]:
         pc_paths_str = mention_info["parents-children_concept"]
         if pc_paths_str != '':
             list_pc_paths = pc_paths_str.split('|')
+            list_pc_paths_updated = list_pc_paths[:]
             for pc_path in list_pc_paths:
                 pc_tuple = tuple(pc_path.split('-'))
                 dict_mention_for_insertion_row['parent_concept'] = pc_tuple[0]
                 dict_mention_for_insertion_row['child_concept'] = pc_tuple[1]
                 if not pc_tuple in dict_edge_tuple_title_tuple:
                     # here will filter out the mentions with edges which are not in the edge catalogue (one-hop, including leaf-to-NULL edges, and two-hop edges)
-                    print(pc_tuple, 'not in dict_edge_tuple_title_tuple')                    
+                    print(pc_tuple, 'not in dict_edge_tuple_title_tuple')    
+                    # update list_pc_paths to those only in the edge catalogue
+                    list_pc_paths_updated.remove(pc_path)                
                     continue
                     # or we can keep the like this below to include all k-hop edges
                     #dict_edge_tuple_title_tuple[pc_tuple] = ("unknown","unknown")
@@ -171,7 +175,11 @@ for data_split_mark in ["train", "valid", "test"]:
                     else:
                          dict_concept_NIL[dict_mention_for_insertion_row["label_concept_ori"]] = 1
                 else:
-                    list_mention_for_insertion_json_row_in_KB.append(mention_for_insertion_json_str)        
+                    list_mention_for_insertion_json_row_in_KB.append(mention_for_insertion_json_str)     
+
+            # update mention_info_json with the updated the list_pc_paths
+            mention_info["parents-children_concept"] = '|'.join(list_pc_paths_updated)
+            mention_info_json = json.dumps(mention_info)
         else:
             print('row', ind, 'no parent-child paths.')
 
@@ -197,13 +205,19 @@ for data_split_mark in ["train", "valid", "test"]:
         pc_paths_str = mention_info["parents-children_concept"]
         if pc_paths_str != '':
             list_pc_paths = pc_paths_str.split('|')
+            list_pc_paths_updated = list_pc_paths[:]
             for pc_path in list_pc_paths:
                 pc_tuple = tuple(pc_path.split('-'))
                 if not pc_tuple in dict_edge_tuple_title_tuple:
                     # here it filters out the mentions with edges which are not in the edge catalogue (one-hop, including leaf-to-NULL edges, and two-hop edges)
                     print(pc_tuple, 'not in dict_edge_tuple_title_tuple')
+                    # update list_pc_paths to those only in the edge catalogue
+                    list_pc_paths_updated.remove(pc_path)            
                     continue
-                has_edge_in_catalogue = True    
+                has_edge_in_catalogue = True                
+            # update mention_info_json with the updated the list_pc_paths
+            mention_info["parents-children_concept"] = '|'.join(list_pc_paths_updated)
+            mention_info_json = json.dumps(mention_info)
         if has_edge_in_catalogue: # only record the mentions which have an edge in the catalogue
             list_mention_json_row_syn_filt.append(mention_info_json.strip())
 
