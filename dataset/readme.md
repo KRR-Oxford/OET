@@ -66,7 +66,7 @@ JSON keys for mention-level data:
     "parents_concept"           # parent concept SNOMED CT ID (or complex concept IDs)
     "parents"                   # parent concept title
     "children_concept"          # child concept SNOMED CT ID (or complex concept IDs)
-    "childs"                    # child concept title
+    "children"                  # child concept title
     "label_id"                  # row id in the entity catalogue ontology/xxx_syn_attr_hyp-all.jsonl file
     "label_title"               # entity title
 
@@ -97,9 +97,8 @@ Acknowledgement:
 
 p.s. Note that we renamed the sub-folder names after running the scripts for easier understanding.
      The original sub-folder names are below:     
-     ```
+     
         original sub-folder name                    -> new sub-folder name
         st21pv_syn_attr-all-complexEdge-filt        -> mention-level/syn_attr
         st21pv_syn_full-all-complexEdge-filt        -> mention-level/syn_full
         st21pv_syn_attr-all-complexEdge-edges-final -> mention-edge-pair-level
-     ```
