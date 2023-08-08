@@ -16,6 +16,10 @@ Data folder structure:
 |   |   |   |   train.jsonl
 |   |   |   |   valid.jsonl
 |   |   |   |   test.jsonl     
+|   |   |   syn_full # synonym as entities (synonym augmentation)
+|   |   |   |   train.jsonl
+|   |   |   |   valid.jsonl
+|   |   |   |   test.jsonl
 |   |   mention-edge-pair-level # Mention-edge-pair-level data
 |   |   |   |   train.jsonl
 |   |   |   |   train-complex.jsonl
@@ -34,6 +38,10 @@ Data folder structure:
 └───MM-S14-CPP
 |   |   mention-level # Mention-level data
 |   |   |   syn_attr # synonym as attributes
+|   |   |   |   train.jsonl
+|   |   |   |   valid.jsonl
+|   |   |   |   test.jsonl
+|   |   |   syn_full # synonym as entities (synonym augmentation)
 |   |   |   |   train.jsonl
 |   |   |   |   valid.jsonl
 |   |   |   |   test.jsonl
