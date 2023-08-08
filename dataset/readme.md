@@ -97,6 +97,9 @@ Acknowledgement:
 
 p.s. Note that we renamed the sub-folder names after running the scripts for easier understanding.
      The original sub-folder names are below:     
+     ```
+        original sub-folder name                    -> new sub-folder name
         st21pv_syn_attr-all-complexEdge-filt        -> mention-level/syn_attr
         st21pv_syn_full-all-complexEdge-filt        -> mention-level/syn_full
         st21pv_syn_attr-all-complexEdge-edges-final -> mention-edge-pair-level
+     ```
