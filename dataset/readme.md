@@ -9,13 +9,12 @@ The dataset consists of two parts:
 
 Data folder structure:
 
-```
 └───MM-S14-Disease
 |   |   mention-level # Mention-level data
 |   |   |   syn_attr # synonym as attributes 
 |   |   |   |   train.jsonl
 |   |   |   |   valid.jsonl
-|   |   |   |   test.jsonl
+|   |   |   |   test.jsonl     
 |   |   mention-edge-pair-level # Mention-edge-pair-level data
 |   |   |   |   train.jsonl
 |   |   |   |   train-complex.jsonl
@@ -26,8 +25,9 @@ Data folder structure:
 |   |   |   |   test-NIL.jsonl
 |   |   |   |   test-NIL-complex.jsonl
 |   |   ontology # ontology files
-|   |   |   SNOMEDCT-US-20140901-Disease_syn_attr_hyp-all.jsonl # entity catalogue, list of jsons, each is an entity.
-|   |   |   SNOMEDCT-US-20140901-Disease-edges.jsonl # list of jsons, each is an edge.
+|   |   |   SNOMEDCT-US-20140901-Disease_syn_attr_hyp-all.jsonl # entity catalogue, list of jsons.
+|   |   |   SNOMEDCT-US-20140901-Disease-edges-atomic.jsonl # edge catalogue (atomic only), list of jsons.
+|   |   |   SNOMEDCT-US-20140901-Disease-edges-all.jsonl    # edge catalogue (atomic+complex), list of jsons.
 |   |   |   SNOMEDCT-US-20140901-Disease-final.owl # .owl file of the older KB
 |   |   |   SNOMEDCT-US-20170301-Disease-final.owl # .owl file of the newer KB
 └───MM-S14-CPP
@@ -46,11 +46,11 @@ Data folder structure:
 |   |   |   |   test-NIL.jsonl
 |   |   |   |   test-NIL-complex.jsonl
 |   |   ontology
-|   |   |   SNOMEDCT-US-20140901-CPP_syn_attr_hyp-all.jsonl # entity catalogue, list of jsons, each is an entity.
-|   |   |   SNOMEDCT-US-20140901-CPP-edges.jsonl # edge catalogue, list of jsons, each is an edge.
+|   |   |   SNOMEDCT-US-20140901-CPP_syn_attr_hyp-all.jsonl # entity catalogue, list of jsons.
+|   |   |   SNOMEDCT-US-20140901-CPP-edges-atomic.jsonl # edge catalogue (atomic only), list of jsons.
+|   |   |   SNOMEDCT-US-20140901-CPP-edges-all.jsonl    # edge catalogue (atomic+complex), list of jsons.
 |   |   |   SNOMEDCT-US-20140901-CPP-final.owl # .owl file of the older KB
 |   |   |   SNOMEDCT-US-20170301-CPP-final.owl # .owl file of the newer KB
-```
 
 JSON keys for mention-level data:
     
@@ -91,3 +91,10 @@ Acknowledgement:
     SNOMED CT https://www.nlm.nih.gov/healthit/snomedct/index.html
     UMLS https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html
     DeepOnto library https://github.com/KRR-Oxford/DeepOnto
+    snomed-owl-toolkit https://github.com/IHTSDO/snomed-owl-toolkit
+
+p.s. Note that we renamed the sub-folder names after running the scripts for easier understanding.
+     The original sub-folder names are below:     
+        st21pv_syn_attr-all-complexEdge-filt        -> mention-level/syn_attr
+        st21pv_syn_full-all-complexEdge-filt        -> mention-level/syn_full
+        st21pv_syn_attr-all-complexEdge-edges-final -> mention-edge-pair-level
