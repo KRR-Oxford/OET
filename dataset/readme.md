@@ -7,6 +7,8 @@ The dataset consists of two parts:
     MM-S14-Disease      # Diseases (disorder)
     MM-S14-CPP          # Clinical finding, Procedure, and Pharmaceutical / biologic 
 
+Each part of the dataset contains a mention-level format and a mention-edge-pair-level format. The former has each row as a mention with one or multiple edges, and the latter has each mention-edge pair as a row. In mention-level, the data has "syn_attr" and "syn_full" formats, where the "syn_attr" has synonyms as attributes (or a key in json) and the "syn_full" has each synonym as a row treated as an entitiy for data augmentation only in the training file (train.jsonl). In mention-edge-pair-level file name, "-in-KB" or "-NIL" means the status of all mentions in the file; "-complex" means the mention in the file can be placed into a complex edge (i.e., having a complex, direct parent concept, which involves at least one logical operator).
+
 Data folder structure:
 
 ```
