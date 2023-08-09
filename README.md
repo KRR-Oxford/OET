@@ -22,7 +22,7 @@ The data creation scripts are available at `data-construction` folder, where `ru
 
 # Methods
 ## Out-of-KB mention discovery
-We used [BLINKout](https://arxiv.org/abs/2302.07189) with default parameters.
+We used [BLINKout](https://github.com/KRR-Oxford/BLINKout) with default parameters.
 
 ## Concept placement
 We used an edge-Bi-encoder, which adapts the original BLINK/BLINKout model by matching a mention to an edge `<parent, child>`.
