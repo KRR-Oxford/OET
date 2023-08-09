@@ -20,8 +20,6 @@ Data folder structure:
 |   |   |   |   test.jsonl     
 |   |   |   syn_full # synonym as entities (synonym augmentation, for training data only)
 |   |   |   |   train.jsonl
-|   |   |   |   valid.jsonl
-|   |   |   |   test.jsonl
 |   |   mention-edge-pair-level # Mention-edge-pair-level data
 |   |   |   |   train.jsonl
 |   |   |   |   train-complex.jsonl
@@ -45,8 +43,6 @@ Data folder structure:
 |   |   |   |   test.jsonl
 |   |   |   syn_full # synonym as entities (synonym augmentation, for training data only)
 |   |   |   |   train.jsonl
-|   |   |   |   valid.jsonl
-|   |   |   |   test.jsonl
 |   |   mention-edge-pair-level # Mention-edge-pair-level data
 |   |   |   |   train.jsonl
 |   |   |   |   train-complex.jsonl
