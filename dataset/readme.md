@@ -18,7 +18,7 @@ Data folder structure:
 |   |   |   |   train.jsonl
 |   |   |   |   valid.jsonl
 |   |   |   |   test.jsonl     
-|   |   |   syn_full # synonym as entities (synonym augmentation)
+|   |   |   syn_full # synonym as entities (synonym augmentation, for training data only)
 |   |   |   |   train.jsonl
 |   |   |   |   valid.jsonl
 |   |   |   |   test.jsonl
@@ -43,7 +43,7 @@ Data folder structure:
 |   |   |   |   train.jsonl
 |   |   |   |   valid.jsonl
 |   |   |   |   test.jsonl
-|   |   |   syn_full # synonym as entities (synonym augmentation)
+|   |   |   syn_full # synonym as entities (synonym augmentation, for training data only)
 |   |   |   |   train.jsonl
 |   |   |   |   valid.jsonl
 |   |   |   |   test.jsonl
