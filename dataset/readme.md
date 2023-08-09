@@ -1,6 +1,6 @@
 A biomedical dataset supporting Ontology Enrichment from Texts (OET), by concept discovery and placement, adapting the MedMentions dataset (PubMed abstracts) with SNOMED CT of versions in 2014 and 2017 under the Diseases (disorder) sub-category and the broader categories of Clinical finding, Procedure, and Pharmaceutical / biologic (CPP) product. 
 
-The dataset is available at [Zenodo](https://zenodo.org/record/8043690). 
+The dataset is available at [Zenodo](https://zenodo.org/record/8228005). 
 
 The dataset consists of two parts:
 
